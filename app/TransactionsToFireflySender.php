@@ -145,7 +145,15 @@ class TransactionsToFireflySender
                 self::transform_transaction_to_firefly_request_body($transaction, $this->firefly_account_id, $this->firefly_accounts, $this->regex_match, $this->regex_replace)
             );
 
-            $response = $request->post();
+            try {
+                $response = $request->post();
+            } catch (\Throwable $e) {
+                error_log('Firefly POST exception: ' . get_class($e));
+                error_log('Firefly POST error: ' . $e->getMessage());
+                error_log('Firefly POST trace: ' . $e->getTraceAsString());
+
+                throw $e;
+            }
             if ($response instanceof ValidationErrorResponse) {
                 $errors   = $response->errors->all();
                 $errors[] = "Firefly III request: " . json_encode($request->getBody());
