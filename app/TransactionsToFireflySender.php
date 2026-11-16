@@ -154,7 +154,13 @@ class TransactionsToFireflySender
             } else if ($response instanceof PostTransactionResponse) {
                 //everything went fine :)
             } else {
-                throw new \Exception('Import went wrong');
+                error_log('Firefly III unexpected response type: ' . get_class($response));
+                error_log('Firefly III response: ' . print_r($response, true));
+                error_log('Firefly III request body: ' . json_encode($request->getBody()));
+
+                throw new \Exception(
+                    'Import went wrong: ' . get_class($response)
+                );
             }
         }
         return $result;
